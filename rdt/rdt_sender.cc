@@ -74,7 +74,7 @@ void Sender_Final()
 
 void Send_Pkt(){
     packet pkt;
-    while(pkt_tosend < next_pkt){
+    while(pkt_tosend < pkt_seq){
         memcpy(&pkt, &(window[pkt_tosend % window_size]), sizeof(packet));
         /* send it out through the lower layer */
         Sender_ToLowerLayer(&pkt);

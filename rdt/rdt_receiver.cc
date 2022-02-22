@@ -51,6 +51,7 @@ void Receiver_Final()
 {
     fprintf(stdout, "At %.2fs: receiver finalizing ...\n", GetSimulationTime());
     free(rev_window);
+    delete[] msg->data;
     free(msg);
 }
 
@@ -106,18 +107,18 @@ void Receiver_FromLowerLayer(struct packet *pkt)
         if(!rev_msg_cursor){
             if(msg->size){
                 msg->size = 0;
-                free(msg->data);
+                delete[] msg->data;
             }
             if(is_spilt){
                 // the first pkt of a spilt msg
                 memcpy(&(msg->size), pkt->data + header_size, sizeof(int));
-                msg->data = (char *)malloc(msg->size);
+                msg->data = new char[msg->size];
                 memcpy(msg->data, pkt->data + header_size + sizeof(int), payload_size - sizeof(int));
                 rev_msg_cursor += payload_size - sizeof(int);
             }
             else{
                 msg->size = payload_size;
-                msg->data = (char *)malloc(msg->size);
+                msg->data = new char[msg->size];
                 memcpy(msg->data, pkt->data + header_size, payload_size);
                 rev_msg_cursor += payload_size;
             }

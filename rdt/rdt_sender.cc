@@ -6,8 +6,8 @@
  *       situations.  In this implementation, the packet format is laid out as 
  *       the following:
  *       
- *       |<-  2 byte  ->|<-  4 byte  ->|<-  4 byte  ->|<-  1 byte  ->|<-  1 byte  ->|<-  the rest ->|
- *       |   checksum   |  packet seq  | message seq  | is spilt msg | payload size |<-  payload  ->|
+ *       |<-  2 byte  ->|<-  4 byte  ->|<-  1 byte  ->|<-  1 byte  ->|<-  the rest ->|
+ *       |   checksum   |  packet seq  | is spilt msg | payload size |<-  payload  ->|
  */
 
 
@@ -100,7 +100,6 @@ void Fill_Window(){
 
             /* fill in the packet */
             memcpy(pkt.data + sizeof(short), &pkt_seq, sizeof(int));
-            memcpy(pkt.data + sizeof(short) + sizeof(int), &msg_tosend_seq, sizeof(int));
             memcpy(pkt.data + header_size - sizeof(char) - sizeof(bool), &is_spilt, sizeof(bool));
             memcpy(pkt.data + header_size - sizeof(char), &payload_size, sizeof(char));
 
@@ -130,13 +129,12 @@ void Fill_Window(){
 
             /* fill in the packet */
             memcpy(pkt.data + sizeof(short), &pkt_seq, sizeof(int));
-            memcpy(pkt.data + sizeof(short) + sizeof(int), &msg_tosend_seq, sizeof(int));
             if(!msg_cursor){
                 is_spilt = false;
             }
             memcpy(pkt.data + header_size - sizeof(char) - sizeof(bool), &is_spilt, sizeof(bool));
             memcpy(pkt.data + header_size - sizeof(char), &payload_size, sizeof(char));
-            memcpy(pkt.data + header_size, msg.data + msg_cursor, msg.size - msg_cursor);
+            memcpy(pkt.data + header_size, msg.data + msg_cursor, payload_size);
             // calc the checksum of the pkg
             short checksum = CheckSum(&pkt);
             printf("ww %d\n", checksum);
@@ -171,10 +169,10 @@ void Sender_FromUpperLayer(struct message *msg){
     }
     int index = msg_seq % buffer_size;
     if(buffer[index].size){
-        free(buffer[index].data);
+        delete[] buffer[index].data;
     }
     buffer[index].size = msg->size;
-    buffer[index].data = (char *)malloc(msg->size);
+    buffer[index].data = new char[msg->size];
     memcpy(buffer[index].data, msg->data, msg->size);
     msg_seq++;
     msg_num++;
@@ -199,7 +197,7 @@ void Sender_FromLowerLayer(struct packet *pkt){
     }
 
     int ack_num = 0;
-    memcpy(&ack_num, pkt->data + sizeof(int), sizeof(int));
+    memcpy(&ack_num, pkt->data + sizeof(short), sizeof(int));
 
     // if(expect_ack_num <= ack_num && ack_num < pkt_seq){
     // all the pkts with sequence number no more than ack are recieved successfully

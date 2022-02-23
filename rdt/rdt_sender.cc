@@ -23,6 +23,7 @@ double timeout = 0.3;
 int buffer_size = 10240;
 message *buffer;
 packet *window;
+bool sack[102400];
 
 // the sequence number of msg
 int msg_seq = 0;
@@ -51,6 +52,9 @@ void Sender_Init()
     memset(buffer, 0, buffer_size * sizeof(message));
     window = (packet *)malloc(window_size * sizeof(packet));
     memset(window, 0, window_size * sizeof(packet));
+    for(int i = 0; i < 102400; i++){
+        sack[i] = false;
+    }
 
     fprintf(stdout, "At %.2fs: sender initializing ...\n", GetSimulationTime());
 }
@@ -75,10 +79,12 @@ void Sender_Final()
 void Send_Pkt(){
     packet pkt;
     while(pkt_tosend < next_pkt){
-        memcpy(&pkt, &(window[pkt_tosend % window_size]), sizeof(packet));
-        /* send it out through the lower layer */
-        Sender_ToLowerLayer(&pkt);
-        // printf("has sent out pkg %d\n", pkt_tosend);
+        if(!sack[pkt_tosend]){
+            memcpy(&pkt, &(window[pkt_tosend % window_size]), sizeof(packet));
+            /* send it out through the lower layer */
+            Sender_ToLowerLayer(&pkt);
+            printf("has sent out pkg %d\n", pkt_tosend);
+        }
         pkt_tosend++;
     }
 }
@@ -86,7 +92,7 @@ void Send_Pkt(){
 // TODO: not SR here! send more!
 void Fill_Window(){
     // printf("%d send msg size is %d\n", msg_tosend_seq, msg.size);
-    message msg = buffer[msg_tosend_seq % buffer_size];
+    message msg = buffer[msg_tosend_seq];
     int payload_size = 0;
 
     /* reuse the same packet data structure */
@@ -116,6 +122,7 @@ void Fill_Window(){
             // calc the checksum of the pkg
             short checksum = CheckSum(&pkt);
             memcpy(pkt.data, &checksum, sizeof(short));
+            printf("checksum %d  and  seq  %d\n", checksum, pkt_seq);
             
             // put the packet into the window
             memcpy(&(window[pkt_seq % window_size]), &pkt, sizeof(packet));
@@ -139,6 +146,7 @@ void Fill_Window(){
             // calc the checksum of the pkg
             short checksum = CheckSum(&pkt);
             memcpy(pkt.data, &checksum, sizeof(short));
+            printf("checksum %d  and  seq  %d\n", checksum, pkt_seq);
             
             // put the packet into the window
             memcpy(&(window[pkt_seq % window_size]), &pkt, sizeof(packet));
@@ -147,7 +155,7 @@ void Fill_Window(){
             msg_num--;
             msg_tosend_seq++;
             if(msg_tosend_seq < msg_seq){
-                msg = buffer[msg_tosend_seq % buffer_size];
+                msg = buffer[msg_tosend_seq];
             }
             msg_cursor = 0;
             // printf("msg_tosend_seq is %d and msg_seq is %d\n", msg_tosend_seq, msg_seq);
@@ -194,20 +202,54 @@ void Sender_FromLowerLayer(struct packet *pkt){
     if(checksum != CheckSum(pkt)){
         return;
     }
+    printf("%d send checksum ! %d\n", checksum, CheckSum(pkt));
 
     int ack_num = 0;
     memcpy(&ack_num, pkt->data + sizeof(short), sizeof(int));
+    printf("%d get ack_num %d\n", checksum, ack_num);
+    if(ack_num < 0 || ack_num >= pkt_seq){
+        return;
+    }
+    sack[ack_num] = true;
 
     // all the pkts with sequence number no more than ack are recieved successfully
     if(expect_ack <= ack_num){
         Sender_StartTimer(timeout);
-        pkt_num -= (ack_num - expect_ack + 1);
-        expect_ack = ack_num + 1;
-        Fill_Window();
+        if(expect_ack == ack_num){
+            pkt_num--;
+            expect_ack++;
+            for(int i = expect_ack; i < pkt_seq; i++){
+                printf("%d\n", i);
+                if(!sack[i]){
+                    printf("%d break\n", i);
+                    break;
+                }
+                pkt_num--;
+                expect_ack++;
+            }
+            printf("do fill\n");
+            Fill_Window();
+        }
     }
+    printf("???\n");
+    // else{
+    //     if(expect_ack < ack_num){
+    //         Sender_StartTimer(timeout);
+    //         pkt_num -= (ack_num - expect_ack + 1);
+    //         expect_ack = ack_num + 1;
+    //         Fill_Window();
+    //     }
+    // }
 
     // all the pkts in the window get acks
-    if(ack_num == pkt_seq - 1){
+    bool flag = true;
+    for(int i = 1; i <= 10; i++){
+        if(!sack[pkt_seq - i]){
+            flag = false;
+            break;
+        }
+    }
+    if(flag){
         Sender_StopTimer();
     }
 }

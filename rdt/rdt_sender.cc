@@ -63,7 +63,7 @@ void Sender_Final()
 {
     for(int i = 0; i < buffer_size; i++){
         if(buffer[i].size){
-            delete buffer[i].data;
+            free(buffer[i].data);
         }
     }
     free(buffer);
@@ -74,19 +74,19 @@ void Sender_Final()
 
 void Send_Pkt(){
     packet pkt;
-    while(pkt_tosend < pkt_seq){
+    while(pkt_tosend < next_pkt){
         memcpy(&pkt, &(window[pkt_tosend % window_size]), sizeof(packet));
         /* send it out through the lower layer */
         Sender_ToLowerLayer(&pkt);
-        printf("has sent pkg %d\n", pkt_tosend);
+        // printf("has sent out pkg %d\n", pkt_tosend);
         pkt_tosend++;
     }
 }
 
+// TODO: not SR here! send more!
 void Fill_Window(){
-    printf("%d  Fill_Window %d and %d\n", pkt_num, msg_tosend_seq, msg_seq);
+    // printf("%d send msg size is %d\n", msg_tosend_seq, msg.size);
     message msg = buffer[msg_tosend_seq % buffer_size];
-    printf("%d send msg size is %d\n", msg_tosend_seq, msg.size);
     int payload_size = 0;
 
     /* reuse the same packet data structure */
@@ -105,6 +105,7 @@ void Fill_Window(){
 
             // we put the msg size in the first spilt pkt
             if(!msg_cursor){
+                payload_size -= sizeof(int);
                 memcpy(pkt.data + header_size, &(msg.size), sizeof(int));
                 memcpy(pkt.data + header_size + sizeof(int), msg.data + msg_cursor, max_payload_size - sizeof(int));
             }
@@ -115,7 +116,6 @@ void Fill_Window(){
             // calc the checksum of the pkg
             short checksum = CheckSum(&pkt);
             memcpy(pkt.data, &checksum, sizeof(short));
-            printf("ww %d\n", checksum);
             
             // put the packet into the window
             memcpy(&(window[pkt_seq % window_size]), &pkt, sizeof(packet));
@@ -132,12 +132,12 @@ void Fill_Window(){
             if(!msg_cursor){
                 is_spilt = false;
             }
+            
             memcpy(pkt.data + header_size - sizeof(char) - sizeof(bool), &is_spilt, sizeof(bool));
             memcpy(pkt.data + header_size - sizeof(char), &payload_size, sizeof(char));
             memcpy(pkt.data + header_size, msg.data + msg_cursor, payload_size);
             // calc the checksum of the pkg
             short checksum = CheckSum(&pkt);
-            printf("ww %d\n", checksum);
             memcpy(pkt.data, &checksum, sizeof(short));
             
             // put the packet into the window
@@ -150,9 +150,9 @@ void Fill_Window(){
                 msg = buffer[msg_tosend_seq % buffer_size];
             }
             msg_cursor = 0;
-            printf("msg_tosend_seq is %d and msg_seq is %d\n", msg_tosend_seq, msg_seq);
+            // printf("msg_tosend_seq is %d and msg_seq is %d\n", msg_tosend_seq, msg_seq);
         }
-        printf("now pkt_seq is %d\n", pkt_seq);
+        // printf("we sent pkt %d has the payload of %d\n", pkt_seq, payload_size);
         pkt_seq++;
         pkt_num++;
     }
@@ -169,10 +169,10 @@ void Sender_FromUpperLayer(struct message *msg){
     }
     int index = msg_seq % buffer_size;
     if(buffer[index].size){
-        delete[] buffer[index].data;
+        free(buffer[index].data);
     }
     buffer[index].size = msg->size;
-    buffer[index].data = new char[msg->size];
+    buffer[index].data = (char *)malloc(msg->size);
     memcpy(buffer[index].data, msg->data, msg->size);
     msg_seq++;
     msg_num++;
@@ -189,7 +189,6 @@ void Sender_FromUpperLayer(struct message *msg){
 /* event handler, called when a packet is passed from the lower layer at the 
    sender */
 void Sender_FromLowerLayer(struct packet *pkt){
-    printf("awdawddaw\n");
     short checksum;
     memcpy(&checksum, pkt->data, sizeof(short));
     if(checksum != CheckSum(pkt)){
@@ -199,9 +198,8 @@ void Sender_FromLowerLayer(struct packet *pkt){
     int ack_num = 0;
     memcpy(&ack_num, pkt->data + sizeof(short), sizeof(int));
 
-    // if(expect_ack_num <= ack_num && ack_num < pkt_seq){
     // all the pkts with sequence number no more than ack are recieved successfully
-    if(expect_ack <= ack_num && ack_num < pkt_seq){
+    if(expect_ack <= ack_num){
         Sender_StartTimer(timeout);
         pkt_num -= (ack_num - expect_ack + 1);
         expect_ack = ack_num + 1;

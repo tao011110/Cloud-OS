@@ -62,7 +62,7 @@ void Send_Ack(int ack) {
     short checksum = CheckSum(&pkt);
     memcpy(pkt.data, &checksum, sizeof(short));
 
-    printf("send ack %d\n", ack);
+    // printf("send ack %d\n", ack);
     Receiver_ToLowerLayer(&pkt);
 }
 
@@ -74,15 +74,14 @@ void Receiver_FromLowerLayer(struct packet *pkt)
     short checksum;
     memcpy(&checksum, pkt->data, sizeof(short));
     if(checksum != CheckSum(pkt)){ 
-        printf("%d checksum is not OK! %d\n", checksum, CheckSum(pkt));
+        // printf("%d checksum is not OK! %d\n", checksum, CheckSum(pkt));
         return;
     }
     int pkt_seq = 0;
     int payload_size = 0;
     memcpy(&pkt_seq, pkt->data + sizeof(short), sizeof(int));
 
-    if(pkt_seq > ack_seq && pkt_seq < ack_seq + window_size){
-        printf("wocccc221\n");
+    if(pkt_seq > ack_seq){
         if(!acks[pkt_seq % window_size]){
             memcpy(&(rev_window[pkt_seq % window_size].data), pkt->data, RDT_PKTSIZE);
             acks[pkt_seq % window_size] = true;
@@ -92,7 +91,7 @@ void Receiver_FromLowerLayer(struct packet *pkt)
     }
     else{
         if(pkt_seq != ack_seq){
-            printf("pkt_seq is %d while ack_seq is %d\n", pkt_seq, ack_seq);
+            // printf("pkt_seq is %d while ack_seq is %d\n", pkt_seq, ack_seq);
             Send_Ack(ack_seq - 1);
             return;
         }
@@ -103,6 +102,7 @@ void Receiver_FromLowerLayer(struct packet *pkt)
         ack_seq++;
         memcpy(&payload_size, pkt->data + header_size - sizeof(char), sizeof(char));
         memcpy(&is_spilt, pkt->data + header_size - sizeof(bool) - sizeof(char), sizeof(bool));
+        // printf("the pkt_seq  %d has the payload of %d\n", pkt_seq, payload_size);
         
         if(!rev_msg_cursor){
             if(msg->size){
@@ -112,7 +112,7 @@ void Receiver_FromLowerLayer(struct packet *pkt)
             if(is_spilt){
                 // the first pkt of a spilt msg
                 memcpy(&(msg->size), pkt->data + header_size, sizeof(int));
-                msg->data = new char[msg->size];
+                msg->data = (char *)malloc(msg->size);
                 memcpy(msg->data, pkt->data + header_size + sizeof(int), payload_size - sizeof(int));
                 rev_msg_cursor += payload_size - sizeof(int);
             }
@@ -124,17 +124,12 @@ void Receiver_FromLowerLayer(struct packet *pkt)
             }
         }
         else{
-            printf("%d and %d\n", rev_msg_cursor, msg->size);
             memcpy(msg->data + rev_msg_cursor, pkt->data + header_size, payload_size);
             rev_msg_cursor += payload_size;
         }
         if(rev_msg_cursor == msg->size){
-            printf("%d wocccc %s\n", rev_msg_cursor, msg->data);
             rev_msg_cursor = 0;
             Receiver_ToUpperLayer(msg);
-        }
-        else{
-            printf("%d while  %d\n", rev_msg_cursor, msg->size);
         }
 
         if(acks[ack_seq % window_size]){
@@ -143,7 +138,7 @@ void Receiver_FromLowerLayer(struct packet *pkt)
             acks[ack_seq % window_size] = false;
         }
         else{
-            printf("we break\n");
+            // printf("we break\n");
             break;
         }
     }

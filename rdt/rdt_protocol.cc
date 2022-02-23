@@ -2,7 +2,7 @@
 
 int window_size = 10;
 int header_size = 8;
-int max_payload_size = 121;
+int max_payload_size = RDT_PKTSIZE - header_size;
 
 short CheckSum(struct packet* pkt){
     unsigned long checksum = 0;

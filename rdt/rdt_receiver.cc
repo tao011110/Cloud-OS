@@ -90,13 +90,11 @@ void Receiver_FromLowerLayer(struct packet *pkt)
             memcpy(&(rev_window[pkt_seq % window_size].data), pkt->data, RDT_PKTSIZE);
             acks[pkt_seq % window_size] = true;
         }
-        // Send_Ack(pkt_seq);
         return;
     }
     else{
         if(pkt_seq < ack_seq){
             // printf("pkt_seq is %d while ack_seq is %d\n", pkt_seq, ack_seq);
-            // Send_Ack(pkt_seq);
             return;
         }
     }
@@ -142,10 +140,7 @@ void Receiver_FromLowerLayer(struct packet *pkt)
             acks[ack_seq % window_size] = false;
         }
         else{
-            // printf("we break\n");
             break;
         }
     }
-
-    // Send_Ack(pkt_seq);
 }

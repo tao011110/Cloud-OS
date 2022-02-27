@@ -89,7 +89,6 @@ void Send_Pkt(){
     }
 }
 
-// TODO: not SR here! send more!
 void Fill_Window(){
     // printf("%d send msg size is %d\n", msg_tosend_seq, msg.size);
     message msg = buffer[msg_tosend_seq];

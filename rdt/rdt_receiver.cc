@@ -62,7 +62,7 @@ void Send_Ack(int ack) {
     short checksum = CheckSum(&pkt);
     memcpy(pkt.data, &checksum, sizeof(short));
 
-    printf("%d receiver send ack %d\n", checksum, ack);
+    // printf("%d receiver send ack %d\n", checksum, ack);
     Receiver_ToLowerLayer(&pkt);
 }
 
@@ -77,7 +77,6 @@ void Receiver_FromLowerLayer(struct packet *pkt)
         // printf("%d checksum is not OK! %d\n", checksum, CheckSum(pkt));
         return;
     }
-    printf("%d rev checksum ! %d\n", checksum, CheckSum(pkt));
     int pkt_seq = 0;
     int payload_size = 0;
     memcpy(&pkt_seq, pkt->data + sizeof(short), sizeof(int));
@@ -85,7 +84,6 @@ void Receiver_FromLowerLayer(struct packet *pkt)
         return;
     }
     Send_Ack(pkt_seq);
-    printf("%d receive pkt_seq %d\n", checksum, pkt_seq);
 
     if(pkt_seq > ack_seq){
         if(!acks[pkt_seq % window_size]){

@@ -83,7 +83,7 @@ void Send_Pkt(){
             memcpy(&pkt, &(window[pkt_tosend % window_size]), sizeof(packet));
             /* send it out through the lower layer */
             Sender_ToLowerLayer(&pkt);
-            printf("has sent out pkg %d\n", pkt_tosend);
+            // printf("has sent out pkg %d\n", pkt_tosend);
         }
         pkt_tosend++;
     }
@@ -122,7 +122,7 @@ void Fill_Window(){
             // calc the checksum of the pkg
             short checksum = CheckSum(&pkt);
             memcpy(pkt.data, &checksum, sizeof(short));
-            printf("checksum %d  and  seq  %d\n", checksum, pkt_seq);
+            // printf("checksum %d  and  seq  %d\n", checksum, pkt_seq);
             
             // put the packet into the window
             memcpy(&(window[pkt_seq % window_size]), &pkt, sizeof(packet));
@@ -146,7 +146,7 @@ void Fill_Window(){
             // calc the checksum of the pkg
             short checksum = CheckSum(&pkt);
             memcpy(pkt.data, &checksum, sizeof(short));
-            printf("checksum %d  and  seq  %d\n", checksum, pkt_seq);
+            // printf("checksum %d  and  seq  %d\n", checksum, pkt_seq);
             
             // put the packet into the window
             memcpy(&(window[pkt_seq % window_size]), &pkt, sizeof(packet));
@@ -202,11 +202,11 @@ void Sender_FromLowerLayer(struct packet *pkt){
     if(checksum != CheckSum(pkt)){
         return;
     }
-    printf("%d send checksum ! %d\n", checksum, CheckSum(pkt));
+    // printf("%d send checksum ! %d\n", checksum, CheckSum(pkt));
 
     int ack_num = 0;
     memcpy(&ack_num, pkt->data + sizeof(short), sizeof(int));
-    printf("%d get ack_num %d\n", checksum, ack_num);
+    // printf("%d get ack_num %d\n", checksum, ack_num);
     if(ack_num < 0 || ack_num >= pkt_seq){
         return;
     }
@@ -219,27 +219,15 @@ void Sender_FromLowerLayer(struct packet *pkt){
             pkt_num--;
             expect_ack++;
             for(int i = expect_ack; i < pkt_seq; i++){
-                printf("%d\n", i);
                 if(!sack[i]){
-                    printf("%d break\n", i);
                     break;
                 }
                 pkt_num--;
                 expect_ack++;
             }
-            printf("do fill\n");
             Fill_Window();
         }
     }
-    printf("???\n");
-    // else{
-    //     if(expect_ack < ack_num){
-    //         Sender_StartTimer(timeout);
-    //         pkt_num -= (ack_num - expect_ack + 1);
-    //         expect_ack = ack_num + 1;
-    //         Fill_Window();
-    //     }
-    // }
 
     // all the pkts in the window get acks
     bool flag = true;

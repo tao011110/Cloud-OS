@@ -206,7 +206,7 @@ void Sender_FromLowerLayer(struct packet *pkt){
     int ack_num = 0;
     memcpy(&ack_num, pkt->data + sizeof(short), sizeof(int));
     // printf("%d get ack_num %d\n", checksum, ack_num);
-    if(ack_num < 0 || ack_num >= pkt_seq){
+    if(ack_num < 0 || ack_num >= pkt_seq || ack_num < pkt_seq - window_size * 2){
         return;
     }
     sack[ack_num] = true;

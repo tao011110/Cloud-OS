@@ -80,7 +80,7 @@ void Receiver_FromLowerLayer(struct packet *pkt)
     int pkt_seq = 0;
     int payload_size = 0;
     memcpy(&pkt_seq, pkt->data + sizeof(short), sizeof(int));
-    if(pkt_seq < 0 || pkt_seq >= ack_seq + window_size){
+    if(pkt_seq < 0 || pkt_seq >= ack_seq + window_size || pkt_seq < ack_seq - window_size - 1){
         return;
     }
     Send_Ack(pkt_seq);

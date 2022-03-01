@@ -104,8 +104,14 @@ When handling an packet for a new message, first check the `is_spilt_msg` in the
 
 
 
+## Other file changes
+
+In addition to  `rdt_sender.cc` and `rdt_receiver.cc`,  I also created files `rdt_protocol.h` and `rdt_protocol.cc` to set some protocols for my RDT implementation, such as the checksum function, window size and son on. And I also modified the makefile to make these two files work.
+
 
 
 **519021910594**
 
 **陶昱丞**
+
+**taoyucheng@sjtu.edu.cn**

@@ -110,6 +110,30 @@ In addition to  `rdt_sender.cc` and `rdt_receiver.cc`,  I also created files `rd
 
 
 
+## Problems I Met
+
+I found that when the corruption rate is high, sometimes the packet sequence number will be changed as well as the checksum number, which will cause some errors because we can't determine whether a packet is corrupted just according to the checksum now. So I add some code like this:
+
+For receiver
+
+```
+if(pkt_seq < 0 || pkt_seq >= ack_seq + window_size || pkt_seq < ack_seq - window_size - 1){
+        return;
+}
+```
+
+For sender:
+
+```
+if(ack_num < 0 || ack_num >= pkt_seq || ack_num < pkt_seq - window_size * 2){
+        return;
+}
+```
+
+Even if the checksum is correct, check whether the sequence number is in the correct range to discard the corrupted packet that can't be discovered by the wrong checksum. This improvement work well for me and we don't see error report now.
+
+
+
 **519021910594**
 
 **陶昱丞**

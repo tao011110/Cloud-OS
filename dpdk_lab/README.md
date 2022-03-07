@@ -35,7 +35,7 @@ static inline uint16_t rte_eth_tx_burst(uint16_t port_id, uint16_t queue_id,
 static inline void rte_pktmbuf_free(struct rte_mbuf *m)
 ```
 
-这个API会将`mbuf`释放回到原先的`mempool`中，可以在发送完包之后调用用于回收空间。
+这个API会将`mbuf`释放回到原先的`mempool`中，可以在发送完包之后调用，用于回收空间。
 
 
 

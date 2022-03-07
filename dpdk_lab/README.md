@@ -112,7 +112,9 @@ strcpy(data, "Great! I've finished lab2 perfectly!");
 
 执行`chmod +x init.sh`和`chmod +x test.sh`赋予shell脚本可执行权限
 
-而后键入`.\init.sh`完成前期配置，再键入`.\test.sh`即可进行测试
+而后键入`.\init.sh`完成前期配置，再键入`.\test.sh`即可进行测试（编译生成的可执行文件位于dpdk_lab\build中）
+
+测试完毕后再退出root账户权限
 
 
 

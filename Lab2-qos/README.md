@@ -6,11 +6,11 @@
 
 Node:h1中 iperf的输出结果：
 
-![image-20220321105433973](E:\我的文件\云操作系统设计与实践\lab\qos_lab\README.assets\image-20220321105433973.png)
+![image-20220321105433973](./README.assets/image-20220321105433973.png)
 
 Node:h2中 iperf的输出结果：
 
-![image-20220321105455329](E:\我的文件\云操作系统设计与实践\lab\qos_lab\README.assets\image-20220321105455329.png)
+![image-20220321105455329](./README.assets/image-20220321105455329.png)
 
 
 
@@ -18,11 +18,11 @@ Node:h2中 iperf的输出结果：
 
 Node:h1中 iperf的输出结果：
 
-![image-20220321111525247](E:\我的文件\云操作系统设计与实践\lab\qos_lab\README.assets\image-20220321111525247.png)
+![image-20220321111525247](./README.assets/image-20220321111525247.png)
 
 Node:h2中 iperf的输出结果：
 
-![image-20220321111548933](E:\我的文件\云操作系统设计与实践\lab\qos_lab\README.assets\image-20220321111548933.png)
+![image-20220321111548933](./README.assets/image-20220321111548933.png)
 
 
 
@@ -30,11 +30,11 @@ Node:h2中 iperf的输出结果：
 
 Node:h3中 iperf的输出结果：
 
-![image-20220321113218493](E:\我的文件\云操作系统设计与实践\lab\qos_lab\README.assets\image-20220321113218493.png)
+![image-20220321113218493](./README.assets/image-20220321113218493.png)
 
 Node:h4中 iperf的输出结果：
 
-![image-20220321113231945](E:\我的文件\云操作系统设计与实践\lab\qos_lab\README.assets\image-20220321113231945.png)
+![image-20220321113231945](./README.assets/image-20220321113231945.png)
 
 
 
@@ -42,11 +42,11 @@ Node:h4中 iperf的输出结果：
 
 Node:h6中 iperf的输出结果：
 
-![image-20220321115259150](E:\我的文件\云操作系统设计与实践\lab\qos_lab\README.assets\image-20220321115259150.png)
+![image-20220321115259150](./README.assets/image-20220321115259150.png)
 
 Node:h5中 iperf的输出结果：
 
-![image-20220321115227627](E:\我的文件\云操作系统设计与实践\lab\qos_lab\README.assets\image-20220321115227627.png)
+![image-20220321115227627](./README.assets/image-20220321115227627.png)
 
 
 
@@ -103,7 +103,7 @@ ovs-vsctl set port s1-eth1 qos=@newqos -- \
 
 Node:h1中观察得到三个client的输出结果分别为：
 
-![image-20220321233752791](E:\我的文件\云操作系统设计与实践\lab\qos_lab\README.assets\image-20220321233752791.png)
+![image-20220321233752791](./README.assets/image-20220321233752791.png)
 
 可见3个client的带宽大小几乎相同，均为3.3Mb左右。这是因为三个client的结点均未做任何配置和限速，在同样的条件下同时运行，因而三者竞争力几乎相同，平分server的10Mb带宽。
 
@@ -134,6 +134,6 @@ ethtool -K h4-eth0 tx off		#在h4中关闭⽹卡的tx校验
 
 Node:观察得到的输出结果：
 
-![image-20220325113215474](E:\我的文件\云操作系统设计与实践\lab\qos_lab\README.assets\image-20220325113215474.png)
+![image-20220325113215474](./README.assets/image-20220325113215474.png)
 
 可以看出，我们成功满足了h2在5Mb及以上， h3在3Mb及以上的要求。

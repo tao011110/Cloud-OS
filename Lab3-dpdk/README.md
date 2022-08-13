@@ -43,9 +43,9 @@ static inline void rte_pktmbuf_free(struct rte_mbuf *m)
 
 `rte_mbuf`可用作存储消息缓存区，它被存储在`mempool`中，其结构如下图所示：
 
-![image-20220305214929595](E:\我的文件\云操作系统设计与实践\lab\dpdk_lab\README.assets\image-20220305214929595.png)
+![image-20220305214929595](./README.assets/image-20220305201501653.png)
 
-![image-20220305215710973](E:\我的文件\云操作系统设计与实践\lab\dpdk_lab\README.assets\image-20220305215710973.png)
+![image-20220305215710973](./README.assets/image-20220305215710973.png)
 
 一些指针、成员或函数的内容如下所示，`mbuf`结构体的指针简写为`m`
 
@@ -70,7 +70,7 @@ static inline void rte_pktmbuf_free(struct rte_mbuf *m)
 
 ## Part 2: send packets with DPDK
 
-![image-20220305201501653](E:\我的文件\云操作系统设计与实践\lab\dpdk_lab\README.assets\image-20220305201501653.png)
+![image-20220305201501653](./README.assets/image-20220305201501653.png)
 
 在程序中，我们对于MAC地址、IP地址和UDP端口号的设置分别为：
 
@@ -106,7 +106,7 @@ strcpy(data, "Great! I've finished lab2 perfectly!");
 
 若想运行这些脚本，请将本文件夹`dpdk_lab\`与文件夹`dpdk\`置于同一父目录下：
 
-<img src="E:\我的文件\云操作系统设计与实践\lab\dpdk_lab\README.assets\image-20220305212627582.png" alt="image-20220305212627582" style="zoom:67%;" />
+<img src=".\README.assets\image-20220305212627582.png" alt="image-20220305212627582" style="zoom:67%;" />
 
 而后使用使用`su`进入root账户（主要是为了拥有权限开启hugepage），
 

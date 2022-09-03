@@ -76,7 +76,7 @@ When handling an packet for a new message, first check the `is_spilt_msg` in the
 
 - `rdt_sim 1000 0.1 100 0.02 0.02 0.02 0`
 
-![image-20220227160712882](E:\我的文件\云操作系统设计与实践\lab\rdt\lab1_doc.assets\image-20220227160712882.png)
+![image-20220227160712882](./lab1_doc.assets/image-20220227160712882.png)
 
 
 
@@ -86,21 +86,21 @@ When handling an packet for a new message, first check the `is_spilt_msg` in the
 
   Mine:
 
-  ![image-20220227160816805](E:\我的文件\云操作系统设计与实践\lab\rdt\lab1_doc.assets\image-20220227160816805.png)
+  ![image-20220227160816805](./lab1_doc.assets/image-20220227160816805.png)
 
   Reference Value:
 
-  ![image-20220227160909945](E:\我的文件\云操作系统设计与实践\lab\rdt\lab1_doc.assets\image-20220227160909945.png)
+  ![image-20220227160909945](./lab1_doc.assets/image-20220227160909945.png)
 
 - ` rdt_sim 1000 0.1 100 0.3 0.3 0.3 0`
 
   Mine:
 
-  ![image-20220227160937409](E:\我的文件\云操作系统设计与实践\lab\rdt\lab1_doc.assets\image-20220227160937409.png)
+  ![image-20220227160937409](./lab1_doc.assets/image-20220227160937409.png)
 
   Reference Value:
 
-  ![image-20220227160950369](E:\我的文件\云操作系统设计与实践\lab\rdt\lab1_doc.assets\image-20220227160950369.png)
+  ![image-20220227160950369](./lab1_doc.assets/image-20220227160950369.png)
 
 
 
